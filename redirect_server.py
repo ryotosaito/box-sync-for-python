@@ -6,6 +6,9 @@ from http import HTTPStatus
 from urllib import parse
 
 code = ''
+domain = '127.0.0.1'
+port = 5050
+url = 'http://' + domain + ':' + str(port) + '/'
 
 class MyHandler(BaseHTTPRequestHandler):
 
@@ -29,7 +32,7 @@ class MyHandler(BaseHTTPRequestHandler):
 
 
 def run(server_class=HTTPServer, handler_class=MyHandler):
-    server_address = ('localhost', 5050)
+    server_address = (domain, port)
     httpd = server_class(server_address, handler_class)
     try:
         httpd.handle_request()
