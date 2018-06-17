@@ -3,7 +3,7 @@
 import config
 import redirect_server
 
-from boxsdk import OAuth2
+from boxsdk import OAuth2, Client
 import sys
 import json
 import os
@@ -42,8 +42,5 @@ def store_tokens(access_token, refresh_token):
         os.mkdir(directory)
     json.dump({'access_token': access_token, 'refresh_token': refresh_token}, open(tokens_file, 'w'))
 
-def main():
-    oauth = authenticate()
 
-if __name__ == '__main__':
-    main()
+client = Client(authenticate())
