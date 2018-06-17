@@ -16,6 +16,7 @@ def authenticate():
         oauth = OAuth2(
                 client_id=config.client_id,
                 client_secret=config.client_secret,
+                store_tokens=store_tokens,
                 access_token=tokens['access_token'],
                 refresh_token=tokens['refresh_token'],
                 )
@@ -23,6 +24,7 @@ def authenticate():
         oauth = OAuth2(
                 client_id=config.client_id,
                 client_secret=config.client_secret,
+                store_tokens=store_tokens,
                 )
         auth_url, csrf_token = oauth.get_authorization_url(redirect_server.url)
         print("Access " + auth_url + " and authorize.")
