@@ -8,11 +8,11 @@ import sys
 import json
 import os
 
-tokens_file = os.environ.get('HOME') + '/.boxsync/tokens.json'
+_tokens_file = os.environ.get('HOME') + '/.boxsync/tokens.json'
 
 def authenticate():
-    if os.path.exists(tokens_file):
-        tokens = json.load(open(tokens_file, 'r'))
+    if os.path.exists(_tokens_file):
+        tokens = json.load(open(_tokens_file, 'r'))
         oauth = OAuth2(
                 client_id=config.client_id,
                 client_secret=config.client_secret,
@@ -35,12 +35,12 @@ def authenticate():
     return oauth
 
 def store_tokens(access_token, refresh_token):
-    directory = os.path.dirname(tokens_file)
+    directory = os.path.dirname(_tokens_file)
     try:
         os.stat(directory)
     except:
         os.mkdir(directory)
-    json.dump({'access_token': access_token, 'refresh_token': refresh_token}, open(tokens_file, 'w'))
+    json.dump({'access_token': access_token, 'refresh_token': refresh_token}, open(_tokens_file, 'w'))
 
 
 client = Client(authenticate())
