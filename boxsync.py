@@ -38,11 +38,14 @@ def authenticate():
 
 def store_tokens(access_token, refresh_token):
     directory = os.path.dirname(_tokens_file)
-    try:
-        os.stat(directory)
-    except:
-        os.mkdir(directory)
+    mkdir(directory)
     json.dump({'access_token': access_token, 'refresh_token': refresh_token}, open(_tokens_file, 'w'))
+
+def mkdir(dir_name):
+    try:
+        os.stat(dir_name)
+    except:
+        os.mkdir(dir_name)
 
 
 client = Client(authenticate())
