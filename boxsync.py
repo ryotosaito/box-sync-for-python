@@ -4,11 +4,13 @@ import config
 import redirect_server
 
 from boxsdk import OAuth2, Client
+import math
 import sys
 import json
 import os
 
 _tokens_file = os.environ.get('HOME') + '/.boxsync/tokens.json'
+_sync_dir = os.environ.get('HOME') + '/Box Sync'
 
 def authenticate():
     if os.path.exists(_tokens_file):
@@ -47,5 +49,29 @@ def mkdir(dir_name):
     except:
         os.mkdir(dir_name)
 
+def get_tree(folder_id):
+    tree = {}
+    folder = client.folder(folder_id).get()
+    for page in range(math.ceil(int(folder.item_collection['total_count'])/1000)):
+        for item in folder.get_items(limit=1000, offset=page*1000, fields=['type', 'id', 'name', 'sync_state', 'modified_at']):
+            if item.type == 'folder' and item.sync_state in ['synced', 'partially_synced']:
+                tree[item.name] = get_tree(item.id)
+            elif item.type == 'file':
+                tree[item.name] = item
+    return tree
+
+def sync():
+    mkdir(_sync_dir)
+    _sync_sub(_sync_dir, get_tree('0'))
+
+def _sync_sub(dir_path, tree):
+    for name, item in tree.items():
+        path = dir_path + '/' + name
+        if isinstance(item, dict):
+            mkdir(path)
+            _sync_sub(path, item)
+        else:
+            with open(path, 'wb') as f:
+                f.write(item.content())
 
 client = Client(authenticate())
