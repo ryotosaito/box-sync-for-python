@@ -8,6 +8,7 @@ import math
 import sys
 import json
 import os
+import iso8601
 
 _tokens_file = os.environ.get('HOME') + '/.boxsync/tokens.json'
 _sync_dir = os.environ.get('HOME') + '/Box Sync'
@@ -73,5 +74,7 @@ def _sync_sub(dir_path, tree):
         else:
             with open(path, 'wb') as f:
                 f.write(item.content())
+                mtime = int(iso8601.parse_date(item.get().modified_at).timestamp())
+                os.utime(path, (mtime, mtime))
 
 client = Client(authenticate())
