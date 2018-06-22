@@ -68,13 +68,15 @@ def sync():
 def _sync_sub(dir_path, tree):
     for name, (item, tree) in tree.items():
         path = dir_path + '/' + name
+        mtime = int(iso8601.parse_date(item.get().modified_at).timestamp())
         if item.type == 'folder':
             mkdir(path)
             _sync_sub(path, tree)
         else:
-            with open(path, 'wb') as f:
-                f.write(item.content())
-        mtime = int(iso8601.parse_date(item.get().modified_at).timestamp())
+            if not os.path.exists(path) or os.path.getmtime(path) < mtime:
+                with open(path, 'wb') as f:
+                    f.write(item.content())
+                    count += 1
         os.utime(path, (mtime, mtime))
 
 client = Client(authenticate())
