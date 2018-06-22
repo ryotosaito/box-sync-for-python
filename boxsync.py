@@ -56,9 +56,9 @@ def get_tree(folder_id):
     for page in range(math.ceil(int(folder.item_collection['total_count'])/1000)):
         for item in folder.get_items(limit=1000, offset=page*1000, fields=['type', 'id', 'name', 'sync_state', 'modified_at']):
             if item.type == 'folder' and item.sync_state in ['synced', 'partially_synced']:
-                tree[item.name] = get_tree(item.id)
+                tree[item.name] = (item, get_tree(item.id))
             elif item.type == 'file':
-                tree[item.name] = item
+                tree[item.name] = (item, None)
     return tree
 
 def sync():
@@ -66,15 +66,15 @@ def sync():
     _sync_sub(_sync_dir, get_tree('0'))
 
 def _sync_sub(dir_path, tree):
-    for name, item in tree.items():
+    for name, (item, tree) in tree.items():
         path = dir_path + '/' + name
-        if isinstance(item, dict):
+        if item.type == 'folder':
             mkdir(path)
-            _sync_sub(path, item)
+            _sync_sub(path, tree)
         else:
             with open(path, 'wb') as f:
                 f.write(item.content())
-                mtime = int(iso8601.parse_date(item.get().modified_at).timestamp())
-                os.utime(path, (mtime, mtime))
+        mtime = int(iso8601.parse_date(item.get().modified_at).timestamp())
+        os.utime(path, (mtime, mtime))
 
 client = Client(authenticate())
